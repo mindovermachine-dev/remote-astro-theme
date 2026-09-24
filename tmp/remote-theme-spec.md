@@ -1,5 +1,77 @@
 # Spec: Remote Astro Theme — CLI-orchestrated theme/content split
 
+## STATUS: v1 implemented and working end-to-end (2026-09-24)
+
+All three repos are pushed to GitHub and a real, working pipeline exists:
+
+- **`mom-doc-theme`** (public, `mindovermachine-dev/mom-doc-theme`): refactored
+  to accept an injected site config (`astro/src/config/site-config.mjs` +
+  `astro/site.config.default.mjs` for its own standalone demo), a
+  `remote-theme.json` manifest (`{ "astroRoot": "astro" }`), symlink-friendly
+  content loading (`vite.resolve.preserveSymlinks: true` + `glob()`-based
+  `docs` collection reading from `.remote-theme/content`), a
+  `src/assets/remote` convention for content-repo assets, softened the
+  hard-fail-if-no-giscus check to a warning, and derives redirect/PDF
+  locale-prefix scanning from the injected `locales` instead of hardcoding
+  `["da","en"]`.
+- **`remote-astro-theme`** (public, `mindovermachine-dev/remote-astro-theme`):
+  a working CLI (`bin/cli.mjs` + `src/*.mjs`) implementing theme ref parsing
+  (git coordinate vs local/`file:` path), tarball fetch+cache for git refs
+  (`src/fetchGitTheme.mjs`), steering-config loading
+  (`src/loadSiteConfig.mjs`), workspace prep — symlinking content/assets,
+  `npm install`-ing the theme if needed, writing the generated config
+  (`src/prepareWorkspace.mjs`) — and invoking Astro's own CLI binary inside
+  the prepared theme dir (`src/runAstro.mjs`), orchestrated end-to-end by
+  `src/run.mjs`.
+- **`use-theme-sample`** (public, `lakruzz/use-theme-sample`): genuinely
+  content-only — `docs/content/**`, `docs/assets/`, one new file
+  `docs/site.config.mjs` (steering config, `theme:
+  "mindovermachine-dev/mom-doc-theme@main"`), and a `package.json` with a
+  single `devDependency` on `remote-astro-theme` (`github:...#main`) plus
+  `dev`/`build`/`preview` npm scripts.
+
+**Validated**: `npm install && npm run build` from a clean `use-theme-sample`
+checkout fetches the theme from its live GitHub ref, symlinks in the sample's
+own content/assets, resolves its own title/sidebar/locales (English as
+unprefixed root locale + Danish, different structure than the theme's own
+demo), builds 30 pages, and copies the result into `use-theme-sample/dist/`.
+Also validated `preview` (serves correctly) and **local-path theme
+resolution** (`theme: "file:../mom-doc-theme"`) for the side-by-side
+theme-development workflow — same build succeeds without any git fetch.
+
+**Real bugs found + fixed during implementation** (useful signal for anyone
+picking this up):
+1. A bare `glob()` loader with an external absolute `base` broke Vite's
+   resolution of bare npm imports (`@astrojs/starlight/components`) in
+   content files — fixed by always symlinking content into a path *inside*
+   the theme's own tree, combined with `preserveSymlinks: true` (§2 below).
+2. Astro's internal build step uses `fs.rename()` to move assets into
+   `outDir`, which throws `EXDEV` when the theme's build temp dir and the
+   content repo's `dist/` are on different filesystems/mounts (common when
+   the theme is fetched into a `~/.cache` dir outside the content repo's own
+   mount, as happened here). Fixed by always building into a dir *alongside*
+   the theme, then `fs.cpSync`-ing (not renaming) the result into the content
+   repo's real `dist/` only for the `build` command.
+3. (Process error, not a design flaw) The CLI's own source code wasn't
+   actually committed/pushed on the first attempt — `npm install` of a
+   `github:` dependency clones with `git`, not a tarball, so an empty/wrong
+   remote repo fails loudly (`ENOENT ... package.json`). Worth remembering:
+   always verify `git log`/`git push` actually happened, not just that a
+   local build/test passed.
+
+**Known gaps / not yet done** (see also §5's open questions, still valid):
+- No lockfile (`docs/remote-theme.lock.json`) yet — floating `@main` is
+  always re-resolved fresh (well, cached indefinitely once fetched once per
+  machine; there's no `update` command yet to force a refetch of an already
+  cached ref). Fine for this prototype, needed before real use.
+- No private-repo auth path for the tarball fetch.
+- `giscus`/PDF settings are not yet threaded through the generated site
+  config (still theme's own hardcoded `src/config/giscus.mjs`); only the
+  hard failure was softened.
+- No automated equivalence diff against `docs.mindovermachine`'s baseline
+  build (§4 step 1) was done — this prototype validated the mechanism using
+  `use-theme-sample`'s real (different) content instead.
+
 ## 0. Current concrete scaffolding (already created)
 
 Four sibling repos exist locally under `mindovermachine-dev/`:
