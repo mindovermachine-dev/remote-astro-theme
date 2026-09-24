@@ -1,0 +1,15 @@
+{
+  "name": "remote-astro-theme",
+  "version": "0.1.0",
+  "description": "CLI that builds/serves an Astro/Starlight site from a content-only repo, using a theme referenced by git ref or local path (Jekyll remote_theme-style).",
+  "type": "module",
+  "bin": {
+    "remote-astro-theme": "./bin/cli.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "tar": "^7.4.3"
+  }
+}
