@@ -59,13 +59,45 @@ picking this up):
    remote repo fails loudly (`ENOENT ... package.json`). Worth remembering:
    always verify `git log`/`git push` actually happened, not just that a
    local build/test passed.
+4. **`defaultLocale: "root"` broke every link on the site.** Starlight's own
+   docs say to *omit* `defaultLocale` when the root locale is your default —
+   passing the literal string `"root"` instead made Starlight generate every
+   sidebar/nav link with the wrong `/en/` prefix (the root locale's `lang`
+   code), so every link 404'd except the homepage's own hardcoded content.
+   This is exactly what "the dev server renders nothing" turned out to be —
+   the homepage itself rendered fine (it's a `template: splash` page with no
+   sidebar by design), but every navigable link was broken. Fixed in the
+   theme's `astro.config.mjs`: pass `undefined` instead of `"root"`.
+5. **Two independent layers of stale caching**, both defeating attempts to
+   pick up a freshly pushed fix:
+   - The CLI's own theme-fetch cache (`~/.cache/remote-astro-theme/...`)
+     reused an already-fetched copy of a *floating* ref (`@main`) forever,
+     with no way to detect the remote had moved. Fixed: only cache when the
+     ref is a full 40-char commit SHA (immutable); anything else (branch,
+     tag) is deleted and re-fetched fresh on every invocation. Correctness
+     over speed for now — see open question on a proper lockfile.
+   - Independently, **`npm install` of a `github:...#branch` dependency does
+     not reliably refresh** even after deleting `node_modules` and
+     `package-lock.json` — npm's own git/pacote cache can keep serving an
+     old resolved commit. Had to run `npm cache clean --force` to actually
+     get the latest CLI code installed. Worth remembering when iterating on
+     `remote-astro-theme` itself during development.
+6. **Concurrency hazard (found, not fixed)**: since fix #5 makes every
+   invocation delete-and-recreate the shared theme cache directory, running
+   two CLI invocations against the same floating ref at the same time (e.g.
+   `dev` in one terminal, `build` in another) corrupts the running one out
+   from under it (`ENOENT` on `content.config.ts`, `404.astro`, etc., inside
+   a live `astro dev` process). Not expected in normal single-command usage,
+   but worth documenting: don't run two `remote-astro-theme` commands
+   concurrently against the same content repo yet.
 
 **Known gaps / not yet done** (see also §5's open questions, still valid):
 
-- No lockfile (`docs/remote-theme.lock.json`) yet — floating `@main` is
-  always re-resolved fresh (well, cached indefinitely once fetched once per
-  machine; there's no `update` command yet to force a refetch of an already
-  cached ref). Fine for this prototype, needed before real use.
+- No lockfile (`docs/remote-theme.lock.json`) yet. Floating refs are now
+  always freshly re-fetched (see bug #5 above) rather than silently stale,
+  which is more correct but slower (full `npm install` of the theme's deps
+  on every `dev`/`build`). A lockfile + `update` command to get back some
+  speed via safe caching is still a real open item.
 - No private-repo auth path for the tarball fetch.
 - `giscus`/PDF settings are not yet threaded through the generated site
   config (still theme's own hardcoded `src/config/giscus.mjs`); only the
