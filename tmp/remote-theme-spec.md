@@ -90,6 +90,17 @@ picking this up):
    a live `astro dev` process). Not expected in normal single-command usage,
    but worth documenting: don't run two `remote-astro-theme` commands
    concurrently against the same content repo yet.
+7. **`build` then `preview` was completely broken** — a direct, sequential
+   (not just theoretical) consequence of fix #5. `preview` runs its own CLI
+   invocation, which re-resolves the theme; for a floating ref that means
+   deleting and re-fetching the theme directory, which wiped out the
+   `.remote-theme/dist` that `build` had just populated inside it — `preview`
+   then failed with "output directory does not exist." Fixed in `run.mjs`:
+   `preview` now points `REMOTE_THEME_OUT_DIR` directly at the **content
+   repo's own `dist/`** (what `build` already copies its final output into),
+   not the theme's ephemeral internal scratch build dir. Validated: clean
+   `npm run build` followed by `npm run preview` now serves the real site
+   correctly.
 
 **Known gaps / not yet done** (see also §5's open questions, still valid):
 
