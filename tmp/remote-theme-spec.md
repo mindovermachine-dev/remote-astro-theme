@@ -26,7 +26,7 @@ All three repos are pushed to GitHub and a real, working pipeline exists:
 - **`use-theme-sample`** (public, `lakruzz/use-theme-sample`): genuinely
   content-only — `docs/content/**`, `docs/assets/`, one new file
   `docs/site.config.mjs` (steering config, `theme:
-  "mindovermachine-dev/mom-doc-theme@main"`), and a `package.json` with a
+"mindovermachine-dev/mom-doc-theme@main"`), and a `package.json` with a
   single `devDependency` on `remote-astro-theme` (`github:...#main`) plus
   `dev`/`build`/`preview` npm scripts.
 
@@ -41,15 +41,16 @@ theme-development workflow — same build succeeds without any git fetch.
 
 **Real bugs found + fixed during implementation** (useful signal for anyone
 picking this up):
+
 1. A bare `glob()` loader with an external absolute `base` broke Vite's
    resolution of bare npm imports (`@astrojs/starlight/components`) in
-   content files — fixed by always symlinking content into a path *inside*
+   content files — fixed by always symlinking content into a path _inside_
    the theme's own tree, combined with `preserveSymlinks: true` (§2 below).
 2. Astro's internal build step uses `fs.rename()` to move assets into
    `outDir`, which throws `EXDEV` when the theme's build temp dir and the
    content repo's `dist/` are on different filesystems/mounts (common when
    the theme is fetched into a `~/.cache` dir outside the content repo's own
-   mount, as happened here). Fixed by always building into a dir *alongside*
+   mount, as happened here). Fixed by always building into a dir _alongside_
    the theme, then `fs.cpSync`-ing (not renaming) the result into the content
    repo's real `dist/` only for the `build` command.
 3. (Process error, not a design flaw) The CLI's own source code wasn't
@@ -60,6 +61,7 @@ picking this up):
    local build/test passed.
 
 **Known gaps / not yet done** (see also §5's open questions, still valid):
+
 - No lockfile (`docs/remote-theme.lock.json`) yet — floating `@main` is
   always re-resolved fresh (well, cached indefinitely once fetched once per
   machine; there's no `update` command yet to force a refetch of an already

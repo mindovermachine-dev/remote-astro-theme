@@ -1,21 +1,36 @@
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import * as tar from "tar";
 
+const FULL_SHA_PATTERN = /^[0-9a-f]{40}$/i;
+
 /**
  * Downloads and extracts a theme's git ref as a tarball (no git binary
- * required, works uniformly for branches/tags/commit SHAs), caching the
- * extracted result so repeat builds don't re-fetch.
+ * required, works uniformly for branches/tags/commit SHAs).
+ *
+ * MVP simplification: only a full 40-char commit SHA is treated as
+ * immutable and cached. Anything else (a branch like "main", a tag) is
+ * re-fetched fresh on every invocation — floating refs silently serving a
+ * stale cached copy forever was a real, confusing bug; correctness over
+ * speed for now. Revisit with a proper lockfile (see spec) later.
  */
 export async function fetchGitTheme({ org, repo, ref }, { cacheRoot }) {
   const key = `${org}__${repo}__${ref}`.replace(/[^\w.-]/g, "_");
   const targetDir = path.join(cacheRoot, key);
+  const isPinned = FULL_SHA_PATTERN.test(ref);
 
-  if (existsSync(targetDir) && readdirSync(targetDir).length > 0) {
+  if (isPinned && existsSync(targetDir) && readdirSync(targetDir).length > 0) {
     console.log(`[remote-astro-theme] Using cached theme at ${targetDir}`);
     return targetDir;
   }
 
+  rmSync(targetDir, { recursive: true, force: true });
   mkdirSync(targetDir, { recursive: true });
 
   const url = `https://codeload.github.com/${org}/${repo}/tar.gz/${ref}`;

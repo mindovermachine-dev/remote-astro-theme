@@ -10,7 +10,9 @@ const VALID_COMMANDS = new Set(["dev", "build", "preview"]);
  */
 export function runAstro(command, { themeAstroDir, env, extraArgs = [] }) {
   if (!VALID_COMMANDS.has(command)) {
-    throw new Error(`Unknown command "${command}". Expected one of: dev, build, preview.`);
+    throw new Error(
+      `Unknown command "${command}". Expected one of: dev, build, preview.`,
+    );
   }
 
   const astroBin = path.join(themeAstroDir, "node_modules", ".bin", "astro");

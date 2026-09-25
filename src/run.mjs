@@ -12,7 +12,8 @@ import { runAstro } from "./runAstro.mjs";
  * run from a content repo's root directory.
  */
 export async function run(command, { cwd = process.cwd() } = {}) {
-  const { siteConfig, contentRoot, assetsRoot, outDir } = await loadSiteConfig(cwd);
+  const { siteConfig, contentRoot, assetsRoot, outDir } =
+    await loadSiteConfig(cwd);
 
   const ref = resolveThemeRef(siteConfig.theme, { fromDir: cwd });
 

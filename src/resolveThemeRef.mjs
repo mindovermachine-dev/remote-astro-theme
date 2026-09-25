@@ -10,7 +10,7 @@ const GIT_REF_PATTERN = /^([\w.-]+)\/([\w.-]+)@(.+)$/;
 export function resolveThemeRef(themeSpec, { fromDir }) {
   if (!themeSpec || typeof themeSpec !== "string") {
     throw new Error(
-      "Missing or invalid `theme` field in docs/site.config.mjs. Expected \"org/repo@ref\" or a local path.",
+      'Missing or invalid `theme` field in docs/site.config.mjs. Expected "org/repo@ref" or a local path.',
     );
   }
 
