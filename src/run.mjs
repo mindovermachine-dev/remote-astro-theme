@@ -33,6 +33,14 @@ export async function run(command, { cwd = process.cwd() } = {}) {
     assetsRoot,
   });
 
+  if (command === "preview") {
+    // Preview must serve the content repo's own dist/ (what `build` already
+    // copied the final output into) — not the theme's internal scratch
+    // build dir, which gets wiped on every invocation for floating refs
+    // (see spec: preview re-fetching the theme deleted build's own output).
+    env.REMOTE_THEME_OUT_DIR = outDir;
+  }
+
   runAstro(command, { themeAstroDir, env });
 
   if (command === "build" && process.exitCode === 0) {
