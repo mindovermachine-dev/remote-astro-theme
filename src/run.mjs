@@ -1,6 +1,6 @@
 import os from "node:os";
 import path from "node:path";
-import { cpSync, rmSync } from "node:fs";
+import { cpSync, existsSync, rmSync } from "node:fs";
 import { resolveThemeRef } from "./resolveThemeRef.mjs";
 import { fetchGitTheme } from "./fetchGitTheme.mjs";
 import { loadSiteConfig } from "./loadSiteConfig.mjs";
@@ -11,9 +11,22 @@ import { runAstro } from "./runAstro.mjs";
  * End-to-end orchestration for `remote-astro-theme dev|build|preview`,
  * run from a content repo's root directory.
  */
-export async function run(command, { cwd = process.cwd() } = {}) {
+export async function run(
+  command,
+  { cwd = process.cwd(), extraArgs = [] } = {},
+) {
   const { siteConfig, contentRoot, assetsRoot, outDir } =
     await loadSiteConfig(cwd);
+
+  if (typeof siteConfig.theme !== "string" || !siteConfig.theme.trim()) {
+    throw new Error(
+      'docs/site.config.mjs must set "theme" (e.g. "org/repo@ref" or "file:../theme").',
+    );
+  }
+
+  if (!existsSync(contentRoot)) {
+    throw new Error(`Content directory not found at ${contentRoot}.`);
+  }
 
   const ref = resolveThemeRef(siteConfig.theme, { fromDir: cwd });
 
@@ -41,7 +54,7 @@ export async function run(command, { cwd = process.cwd() } = {}) {
     env.REMOTE_THEME_OUT_DIR = outDir;
   }
 
-  runAstro(command, { themeAstroDir, env });
+  runAstro(command, { themeAstroDir, env, extraArgs });
 
   if (command === "build" && process.exitCode === 0) {
     const builtDist = path.join(themeAstroDir, ".remote-theme", "dist");

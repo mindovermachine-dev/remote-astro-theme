@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { run } from "../src/run.mjs";
 
-const [, , command] = process.argv;
+const [, , command, ...extraArgs] = process.argv;
 const VALID_COMMANDS = new Set(["dev", "build", "preview"]);
 
 if (!VALID_COMMANDS.has(command)) {
@@ -12,7 +12,7 @@ if (!VALID_COMMANDS.has(command)) {
 }
 
 try {
-  await run(command);
+  await run(command, { extraArgs });
 } catch (error) {
   console.error(`[remote-astro-theme] ${error.message}`);
   process.exitCode = 1;
