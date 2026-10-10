@@ -86,9 +86,12 @@ export function prepareWorkspace({
   ensureDeps(themeAstroDir);
 
   // Stale cached entries keep old filePaths, which breaks Starlight autogenerate.
-  rmSync(path.join(themeAstroDir, "node_modules", ".astro", "data-store.json"), {
-    force: true,
-  });
+  rmSync(
+    path.join(themeAstroDir, "node_modules", ".astro", "data-store.json"),
+    {
+      force: true,
+    },
+  );
   const workspaceDir = path.join(themeAstroDir, ".remote-theme");
   const symlinkedContentDir = path.join(
     themeAstroDir,
