@@ -1,10 +1,40 @@
 {
-  "name": "remote-astro-theme",
+  "name": "@mindovermachine-dev/remote-astro-theme",
   "version": "0.1.0",
   "description": "CLI that builds/serves an Astro/Starlight site from a content-only repo, using a theme referenced by git ref or local path (Jekyll remote_theme-style).",
   "type": "module",
   "bin": {
     "remote-astro-theme": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "check": "for f in bin/*.mjs src/*.mjs; do node --check \"$f\" || exit 1; done",
+    "prepublishOnly": "npm run check",
+    "docs:dev": "node bin/cli.mjs dev --host 0.0.0.0",
+    "docs:build": "node bin/cli.mjs build",
+    "docs:preview": "node bin/cli.mjs preview --host 0.0.0.0"
+  },
+  "keywords": [
+    "astro",
+    "starlight",
+    "theme",
+    "remote-theme",
+    "documentation",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mindovermachine-dev/remote-astro-theme.git"
+  },
+  "homepage": "https://docs.mindovermachine.dev/remote-astro-theme/",
+  "bugs": {
+    "url": "https://github.com/mindovermachine-dev/remote-astro-theme/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=20"

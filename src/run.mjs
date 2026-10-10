@@ -13,14 +13,16 @@ import { runAstro } from "./runAstro.mjs";
  */
 export async function run(
   command,
-  { cwd = process.cwd(), extraArgs = [] } = {},
+  { cwd = process.cwd(), extraArgs = [], dir = "docs" } = {},
 ) {
-  const { siteConfig, contentRoot, assetsRoot, outDir } =
-    await loadSiteConfig(cwd);
+  const { siteConfig, contentRoot, assetsRoot, outDir } = await loadSiteConfig(
+    cwd,
+    dir,
+  );
 
   if (typeof siteConfig.theme !== "string" || !siteConfig.theme.trim()) {
     throw new Error(
-      'docs/site.config.mjs must set "theme" (e.g. "org/repo@ref" or "file:../theme").',
+      `${dir}/site.config.mjs must set "theme" (e.g. "org/repo@ref" or "file:../theme").`,
     );
   }
 

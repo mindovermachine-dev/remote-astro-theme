@@ -11,7 +11,11 @@ import {
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-const DEFAULT_MANIFEST = { astroRoot: "astro" };
+const DEFAULT_MANIFEST = {
+  astroRoot: "astro",
+  contentLink: ".remote-theme/content",
+  assetsLink: "src/assets/remote",
+};
 
 function readManifest(themeRoot) {
   const manifestPath = path.join(themeRoot, "remote-theme.json");
@@ -93,20 +97,10 @@ export function prepareWorkspace({
     },
   );
   const workspaceDir = path.join(themeAstroDir, ".remote-theme");
-  const symlinkedContentDir = path.join(
-    themeAstroDir,
-    "src",
-    "content",
-    "docs",
-  );
+  const symlinkedContentDir = path.join(themeAstroDir, manifest.contentLink);
   replaceSymlink(symlinkedContentDir, contentRoot);
 
-  const symlinkedAssetsDir = path.join(
-    themeAstroDir,
-    "src",
-    "assets",
-    "remote",
-  );
+  const symlinkedAssetsDir = path.join(themeAstroDir, manifest.assetsLink);
   if (existsSync(assetsRoot)) {
     replaceSymlink(symlinkedAssetsDir, assetsRoot);
   }
@@ -114,7 +108,7 @@ export function prepareWorkspace({
   const { theme: _theme, ...siteConfigWithoutThemeField } = siteConfig;
   const generatedConfig = {
     ...siteConfigWithoutThemeField,
-    contentRoot: "./src/content/docs",
+    contentRoot: `./${manifest.contentLink}`,
   };
 
   mkdirSync(workspaceDir, { recursive: true });
