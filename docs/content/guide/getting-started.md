@@ -15,7 +15,7 @@ sidebar:
 ## Install
 
 ```sh
-npm install --save-dev remote-astro-theme
+npm install --save-dev @mindovermachine-dev/remote-astro-theme
 ```
 
 ## Layout

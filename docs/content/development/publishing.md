@@ -8,7 +8,7 @@ sidebar:
 ## One-time
 
 1. Log in with an account that may publish the package: `npm login`.
-2. Confirm the name is yours: `npm view remote-astro-theme`.
+2. Confirm the name is yours: `npm view @mindovermachine-dev/remote-astro-theme`.
 3. Enable two-factor authentication on the account.
 
 ## Each release
@@ -22,7 +22,7 @@ sidebar:
 Content repos then depend on it as a normal package:
 
 ```json
-{ "devDependencies": { "remote-astro-theme": "^0.1.0" } }
+{ "devDependencies": { "@mindovermachine-dev/remote-astro-theme": "^0.1.0" } }
 ```
 
 ## Notes

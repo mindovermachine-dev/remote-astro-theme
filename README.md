@@ -3,7 +3,7 @@
 Like Jekyll's `remote_theme`, for Astro: build a full site from a repo that contains only content and one config file. The Astro project (the _theme_) is fetched from git, or from a local folder, at build time.
 
 ```sh
-npm install --save-dev remote-astro-theme
+npm install --save-dev @mindovermachine-dev/remote-astro-theme
 npx remote-astro-theme build
 ```
 
