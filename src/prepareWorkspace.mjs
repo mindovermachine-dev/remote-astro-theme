@@ -2,6 +2,7 @@ import {
   existsSync,
   lstatSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   symlinkSync,
@@ -29,7 +30,13 @@ function readManifest(themeRoot) {
 function replaceSymlink(linkPath, targetPath) {
   mkdirSync(path.dirname(linkPath), { recursive: true });
 
-  if (existsSync(linkPath) || lstatSync(linkPath, { throwIfNoEntry: false })) {
+  const stat = lstatSync(linkPath, { throwIfNoEntry: false });
+  if (stat?.isDirectory() && readdirSync(linkPath).length > 0) {
+    throw new Error(
+      `Refusing to replace non-empty directory ${linkPath}; themes must not ship content there.`,
+    );
+  }
+  if (stat) {
     rmSync(linkPath, { recursive: true, force: true });
   }
 
@@ -78,8 +85,17 @@ export function prepareWorkspace({
 
   ensureDeps(themeAstroDir);
 
+  // Stale cached entries keep old filePaths, which breaks Starlight autogenerate.
+  rmSync(path.join(themeAstroDir, "node_modules", ".astro", "data-store.json"), {
+    force: true,
+  });
   const workspaceDir = path.join(themeAstroDir, ".remote-theme");
-  const symlinkedContentDir = path.join(workspaceDir, "content");
+  const symlinkedContentDir = path.join(
+    themeAstroDir,
+    "src",
+    "content",
+    "docs",
+  );
   replaceSymlink(symlinkedContentDir, contentRoot);
 
   const symlinkedAssetsDir = path.join(
@@ -95,7 +111,7 @@ export function prepareWorkspace({
   const { theme: _theme, ...siteConfigWithoutThemeField } = siteConfig;
   const generatedConfig = {
     ...siteConfigWithoutThemeField,
-    contentRoot: "./.remote-theme/content",
+    contentRoot: "./src/content/docs",
   };
 
   mkdirSync(workspaceDir, { recursive: true });
