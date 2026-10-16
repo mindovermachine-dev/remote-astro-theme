@@ -15,7 +15,9 @@ export default {
     },
   ],
   sidebar: [
-    { label: "Guide", items: [{ autogenerate: { directory: "guide" } }] },
+    { 
+      label: "Guide", 
+      items: [{ autogenerate: { directory: "guide" } }] },
     {
       label: "Development",
       items: [{ autogenerate: { directory: "development" } }],
