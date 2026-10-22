@@ -1,5 +1,10 @@
 name: Deploy docs to GitHub Pages
-description: This action builds and deploys the documentation to GitHub Pages based on the remote-astro-theme.
+description: Build and deploy documentation to GitHub Pages using remote-astro-theme.
+
+outputs:
+  page_url:
+    description: The URL of the deployed GitHub Pages site.
+    value: ${{ steps.deployment.outputs.page_url }}
 
 inputs:
   node-version:
@@ -15,41 +20,40 @@ inputs:
   version:
     description: 'The version of the remote-astro-theme to install.'
     required: false
-    default: 'latest'
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+    - name: Write build metadata
+      shell: bash
+      env:
+        DOCS_PATH: ${{ inputs.docs-path }}
+        BUILD_REPO: ${{ github.repository }}
+        BUILD_REF: ${{ github.ref_name }}
+        BUILD_SHA: ${{ github.sha }}
+      run: |
+        mkdir -p "$DOCS_PATH/public"
+        printf 'Build from %s\nRef: %s\nCommit: %s\n' "$BUILD_REPO" "$BUILD_REF" "$BUILD_SHA" > "$DOCS_PATH/public/version.txt"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: npm
+    - name: Build docs
+      shell: bash
+      env:
+        DOCS_PATH: ${{ inputs.docs-path }}
+        THEME_VERSION: ${{ inputs.version }}
+      run: npx --yes --package "@mindovermachine-dev/remote-astro-theme@$THEME_VERSION" remote-astro-theme build --dir "$DOCS_PATH"
 
-      - name: Install remote-astro-theme dependency
-        run: npm install @mindovermachine-dev/remote-astro-theme ${{ inputs.version }}
+    - name: Configure GitHub Pages
+      uses: actions/configure-pages@v6
 
-      - name: Build docs
-        run: npx remote-astro-theme build --dir ${{ inputs.docs-path }}
-      
-      - name: Write commit SHA to file
-        run: "printf 'Build from %s\\nRef: %s\\nCommit: %s\\n' \"${BUILD_REPO:-$(git remote get-url origin)}\" \"${BUILD_REF:-$(git branch --show-current)}\" \"${BUILD_SHA:-$(git rev-parse HEAD)}\" > ${{ inputs.docs-path }}/public/version.txt",
+    - name: Upload docs artifact
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: dist
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
-
-      - name: Upload docs artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v5
