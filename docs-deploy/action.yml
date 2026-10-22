@@ -8,17 +8,17 @@ outputs:
 
 inputs:
   node-version:
-    description: 'The Node.js version to use for building the docs.'
+    description: "The Node.js version to use for building the docs."
     required: false
-    default: '24'
+    default: "24"
 
   docs-path:
-    description: 'The path to the documentation files.'
+    description: "The path to the documentation files."
     required: false
-    default: 'docs'
-  
+    default: "docs"
+
   version:
-    description: 'The version of the remote-astro-theme to install.'
+    description: "The version of the remote-astro-theme to install."
     required: false
 runs:
   using: composite

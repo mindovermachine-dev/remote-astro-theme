@@ -60,7 +60,7 @@ picking this up):
    always verify `git log`/`git push` actually happened, not just that a
    local build/test passed.
 4. **`defaultLocale: "root"` broke every link on the site.** Starlight's own
-   docs say to *omit* `defaultLocale` when the root locale is your default —
+   docs say to _omit_ `defaultLocale` when the root locale is your default —
    passing the literal string `"root"` instead made Starlight generate every
    sidebar/nav link with the wrong `/en/` prefix (the root locale's `lang`
    code), so every link 404'd except the homepage's own hardcoded content.
@@ -71,7 +71,7 @@ picking this up):
 5. **Two independent layers of stale caching**, both defeating attempts to
    pick up a freshly pushed fix:
    - The CLI's own theme-fetch cache (`~/.cache/remote-astro-theme/...`)
-     reused an already-fetched copy of a *floating* ref (`@main`) forever,
+     reused an already-fetched copy of a _floating_ ref (`@main`) forever,
      with no way to detect the remote had moved. Fixed: only cache when the
      ref is a full 40-char commit SHA (immutable); anything else (branch,
      tag) is deleted and re-fetched fresh on every invocation. Correctness

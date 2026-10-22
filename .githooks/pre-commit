@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gh insitu run trunk-worthy

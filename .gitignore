@@ -1,4 +1,8 @@
-node_modules/
+**/node_modules/
 
 # build output
 dist/
+
+.tt_cache
+
+**/tmp/
