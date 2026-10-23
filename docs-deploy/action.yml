@@ -28,23 +28,21 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: Write build metadata
-      shell: bash
-      env:
-        DOCS_PATH: ${{ inputs.docs-path }}
-        BUILD_REPO: ${{ github.repository }}
-        BUILD_REF: ${{ github.ref_name }}
-        BUILD_SHA: ${{ github.sha }}
-      run: |
-        mkdir -p "$DOCS_PATH/public"
-        printf 'Build from %s\nRef: %s\nCommit: %s\n' "$BUILD_REPO" "$BUILD_REF" "$BUILD_SHA" > "$DOCS_PATH/public/version.txt"
-
     - name: Build docs
       shell: bash
       env:
         DOCS_PATH: ${{ inputs.docs-path }}
         THEME_VERSION: ${{ inputs.version }}
       run: npx --yes --package "@mindovermachine-dev/remote-astro-theme@$THEME_VERSION" remote-astro-theme build --dir "$DOCS_PATH"
+
+    - name: Write build metadata
+      shell: bash
+      env:
+        BUILD_REPO: ${{ github.repository }}
+        BUILD_REF: ${{ github.ref_name }}
+        BUILD_SHA: ${{ github.sha }}
+      run: |
+        printf 'Build from %s\nRef: %s\nCommit: %s\n' "$BUILD_REPO" "$BUILD_REF" "$BUILD_SHA" > "dist/version.txt"
 
     - name: Configure GitHub Pages
       uses: actions/configure-pages@v6
