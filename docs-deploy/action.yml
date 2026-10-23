@@ -20,6 +20,8 @@ inputs:
   version:
     description: "The version of the remote-astro-theme to install."
     required: false
+    default: latest
+
 runs:
   using: composite
   steps:
