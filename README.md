@@ -18,6 +18,6 @@ docs/
 
 Commands: `dev`, `build` (output in `dist/`), `preview`. Use `--dir <folder>` if your folder is not called `docs`; other arguments are passed to Astro.
 
-Full documentation is in [`docs/`](./docs/content), published at https://docs.mindovermachine.dev/remote-astro-theme/. A ready-made theme is [mom-doc-theme](https://github.com/mindovermachine-dev/mom-doc-theme).
+Full documentation is in [`docs/`](./docs/content), published at <https://docs.mindovermachine.dev/remote-astro-theme/>. A ready-made theme is [mom-doc-theme](https://github.com/mindovermachine-dev/mom-doc-theme).
 
 Requires Node.js 20 or newer.

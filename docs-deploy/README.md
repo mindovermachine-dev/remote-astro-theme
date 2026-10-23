@@ -36,4 +36,3 @@ jobs:
         #   docs-path: astro #default is docs
         #   version: ^0.1.0 #default is latest
 ```
-
