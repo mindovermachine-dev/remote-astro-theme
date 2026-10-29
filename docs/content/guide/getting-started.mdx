@@ -37,7 +37,7 @@ The entire Astro theme with it's scaffolding, components, layouts, styles etc is
    ├── content/          # required: pages (md and mdx are supported)
    └── assets/           # optional: images, videos, pdfs etc
    ```
-   The Starligt theme expects that each `md` or `mdx` file in the content folder has a minimum frontmatter the contains `title` and `description`
+   The [Starlight theme expects](https://starlight.astro.build/guides/project-structure/) that each `md` or `mdx` file in the content folder has a minimum frontmatter the contains `title` and `description`
    ```yaml
    ---
    title: Getting started
@@ -94,11 +94,9 @@ The entire Astro theme with it's scaffolding, components, layouts, styles etc is
    The `remote-astro-theme` doubles as CLI<br/>
    `Usage: remote-astro-theme <dev|build|preview> [--dir <folder>] [astro args...]`<br/>
    You call it with `npx`
-
-```shell
-npx remote-astro-theme dev # Build to mememory, serve locally, update dynamically
-npm remote-astro-theme build #  build to /dist folder
-npm remote-astro-theme preview # Serve content of /dist folder
-```
-
-</Steps>
+   ```shell
+   npx remote-astro-theme dev # Build to mememory, serve locally, update dynamically
+   npm remote-astro-theme build #  build to /dist folder
+   npm remote-astro-theme preview # Serve content of /dist folder
+   ```
+  </Steps>
