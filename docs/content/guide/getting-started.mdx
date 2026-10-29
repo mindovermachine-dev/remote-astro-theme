@@ -1,0 +1,104 @@
+---
+title: Getting started
+description: Install the CLI and build a site from a content folder.
+sidebar:
+  order: 1
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+`remote-astro-theme` allows you to keep only the content folder of an Astro site in your repo. Nice and clean.
+
+The entire Astro theme with it's scaffolding, components, layouts, styles etc is kept as a separate repository you can hinge your content on. You can then use this theme across all your documentation sites and easily maintain the look, feel and features of you entire organization in a single Astro repo.
+
+## Requirements
+
+- Node.js 20 or newer
+- Network access and read rights to the theme on GitHub.
+
+<Steps>
+
+1. **Descide on template**<br/>
+   You need a working astro site you can reference as the template. You are welcome to use ours:
+   ```text
+   mindovermachine-dev/mom-doc-theme
+   ```
+   Alternatively [create your own _Starlight_](https://starlight.astro.build/getting-started/) theme and push it to GitHub
+2. **Install the `remote-astro-theme` package**<br/>
+   ```shell
+   npm install --save-dev @mindovermachine-dev/remote-astro-theme
+   ```
+   Next time you open the repo and run `npm ci` or `npm install` it will be automatically installed.
+3. **Style you `docs` folder**<br/>
+   The default setup is to use the `docs` folder, but you can name the folder of your content anything you want, and then explicitly point to it at build time. Inside the folder you _must_ organise subfolder and files exactly as your theme dictates. And you must provide a config file `site.config.mjs`. For the _Starlight_ theme it looks like this:
+   ```text
+   docs/
+   ├── site.config.mjs   # required: steering config
+   ├── content/          # required: pages (md and mdx are supported)
+   └── assets/           # optional: images, videos, pdfs etc
+   ```
+   The Starligt theme expects that each `md` or `mdx` file in the content folder has a minimum frontmatter the contains `title` and `description`
+   ```yaml
+   ---
+   title: Getting started
+   description: Install the CLI and build a site from a content folder.
+   ---
+   ```
+4. **Bootstrap the config file**<br/>
+   The `site.config.mjs`is designed to export `default`which can contain _any setting_ that is valid in your theme's `astro.config.mjs`. Only additional settings required by `remote-astro-theme` is the `theme` reference
+
+   ```js
+   // Smallest possible config
+   export default {
+     theme: "mindovermachine-dev/mom-doc-theme@main",
+   };
+   ```
+
+   Although valid, you probably need to control the theme as well. Here is the `site.config.mjs` used for this project.
+
+   ```js
+   export default {
+     // required by remote-astro-theme
+     theme: "mindovermachine-dev/mom-doc-theme@main",
+
+     // Overrides the theme's valid astro.config.mjs settings
+     // This is a this theme based on Starlight
+     // https://starlight.astro.build/reference/configuration/
+     title: "remote-astro-theme",
+     site: "https://docs.mindovermachine.dev",
+     rootRedirect: null,
+     defaultLocale: "root",
+     locales: { root: { label: "English", lang: "en" } },
+     astro: { base: "/remote-astro-theme", server: { host: true } },
+     social: [
+       {
+         icon: "github",
+         label: "GitHub",
+         href: "https://github.com/mindovermachine-dev/remote-astro-theme",
+       },
+     ],
+     sidebar: [
+       {
+         label: "Guide",
+         items: [{ autogenerate: { directory: "guide" } }],
+       },
+       {
+         label: "Development",
+         items: [{ autogenerate: { directory: "development" } }],
+       },
+     ],
+   };
+   ```
+
+5. **Build the site**
+   The `remote-astro-theme` doubles as CLI<br/>
+   `Usage: remote-astro-theme <dev|build|preview> [--dir <folder>] [astro args...]`<br/>
+   You call it with `npx`
+
+```shell
+npx remote-astro-theme dev # Build to mememory, serve locally, update dynamically
+npm remote-astro-theme build #  build to /dist folder
+npm remote-astro-theme preview # Serve content of /dist folder
+```
+
+</Steps>

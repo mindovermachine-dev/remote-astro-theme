@@ -3,8 +3,8 @@ name: Deploy docs to GitHub Pages
 on:
   workflow_dispatch:
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
     tags:
       - "[0-9]+.[0-9]+.[0-9]+" # Matches Core SemVer versions - without a prefix: 0.9.0, 1.2.3
       - "[a-zA-Z]+[0-9]+.[0-9]+.[0-9]+" # Matches Core SemVer versions - with a prefix: v1.0.0, ver1.0.0, RC1.0.0
